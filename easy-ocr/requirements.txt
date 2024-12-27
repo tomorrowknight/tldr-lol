@@ -1,6 +1,6 @@
 --index-url https://download.pytorch.org/whl/cpu
 torch==2.1.0+cpu
 torchvision==0.15.2+cpu
-easyocr==1.7.0
+easyocr==1.7.2
 flask
 gunicorn
