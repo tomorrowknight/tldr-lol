@@ -38,7 +38,7 @@ app.get('/', (req, res) => {
       <div class="logo">TL;<span>DR</span></div>
       <form action="/summarize" method="POST" enctype="multipart/form-data">
         <div class="textarea-container">
-          <textarea name="text" placeholder="Paste your text here..."></textarea>
+          <textarea name="text" placeholder="Paste TL;DR text here..."></textarea>
         </div>
         <div class="upload-container">
           <label class="upload-icon" for="file-input">
@@ -47,7 +47,7 @@ app.get('/', (req, res) => {
           <input id="file-input" class="file-input" type="file" name="file" accept="image/*" onchange="updateFileName(this.files[0])">
           <div class="file-name" id="file-name-display">No file chosen</div>
         </div>
-        <button type="submit" class="submit-button">Summarize!</button>
+        <button type="submit" class="submit-button">Sumthin!</button>
       </form>
       <script>
         function updateFileName(file) {
