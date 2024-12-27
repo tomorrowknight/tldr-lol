@@ -2,7 +2,6 @@ from flask import Flask, request, jsonify
 import easyocr
 
 app = Flask(__name__)
-reader = easyocr.Reader(['en'])
 
 @app.route('/ocr', methods=['POST'])
 def ocr():
@@ -10,6 +9,7 @@ def ocr():
         return jsonify({'error': 'No file uploaded'}), 400
 
     file = request.files['file']
+    reader = easyocr.Reader(['en'], gpu=False) 
     results = reader.readtext(file.read())
     extracted_text = ' '.join([res[1] for res in results])
 
