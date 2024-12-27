@@ -76,7 +76,8 @@ app.post('/summarize', upload.single('file'), async (req, res) => {
       const formData = new FormData();
       formData.append('file', fs.createReadStream(uploadedFile.path));
 
-      const ocrResponse = await axios.post(process.env.OCR_SVC_URL, formData, {
+      // Call the Dockerized OCR backend service
+      const ocrResponse = await axios.post(`${process.env.OCR_SVC_URL}/ocr`, formData, {
         headers: formData.getHeaders(),
       });
 

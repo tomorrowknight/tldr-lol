@@ -1,24 +1,30 @@
 # Use a lightweight Python image
 FROM python:3.10-slim
 
-# Install Tesseract and required system dependencies
+# Set environment variables to avoid .pyc files and enable logging
+ENV PYTHONDONTWRITEBYTECODE 1
+ENV PYTHONUNBUFFERED 1
+
+# Install system dependencies for Tesseract and Python
 RUN apt-get update && apt-get install -y \
     tesseract-ocr \
     libtesseract-dev \
+    curl \
+    nano \
     && apt-get clean \
     && rm -rf /var/lib/apt/lists/*
 
-# Set working directory
+# Set the working directory
 WORKDIR /app
 
-# Copy project files to the container
+# Copy the application code
 COPY . .
 
 # Install Python dependencies
 RUN pip install --no-cache-dir -r requirements.txt
 
-# Expose port for the Flask app
-EXPOSE 5000
+# Expose the Flask port
+EXPOSE 5550
 
-# Start the app using gunicorn
-CMD ["gunicorn", "pytesseract:app", "--bind", "0.0.0.0:5550"]
+# Run the Flask app directly
+CMD ["python", "py-tess.py"]
