@@ -59,7 +59,7 @@ app.get('/', (req, res) => {
             <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M12 16.5l4-4h-3V3h-2v9.5H8l4 4zM5 20h14c.55 0 1-.45 1-1v-3h-2v2H6v-2H4v3c0 .55.45 1 1 1z"></path></svg>
           </label>
           <input id="file-input" class="file-input" type="file" name="file" accept="image/*" onchange="updateFileName(this.files[0])">
-          <div class="file-name" id="file-name-display">No file chosen</div>
+          <div class="file-name" id="file-name-display">Upload image here</div>
         </div>
         <button type="submit" class="submit-button">Sumthin!</button>
       </form>
