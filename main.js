@@ -36,6 +36,20 @@ app.get('/', (req, res) => {
     </head>
     <body>
       <div class="logo">TL;<span>DR</span></div>
+      
+      <div class="intro-container">
+        <p>
+          Turn walls of text into summaries in <strong>20 words or less</strong>.  
+          <br>
+          Long IG rant, a Twitter essay, or just something TL;DR?
+          </br>
+          Upload it or paste it here, and let this bad boy handle the rest!
+        </p>
+        <p>
+          Perfect for when your attention span says, <strong>“Nope.”</strong>
+        </p>
+      </div>
+
       <form action="/summarize" method="POST" enctype="multipart/form-data">
         <div class="textarea-container">
           <textarea name="text" placeholder="Paste TL;DR text here..."></textarea>
@@ -56,7 +70,7 @@ app.get('/', (req, res) => {
             const truncatedName = name.length > 20 ? name.substring(0, 10) + '...' + name.substring(name.length - 10) : name;
             document.getElementById('file-name-display').textContent = truncatedName;
           } else {
-            document.getElementById('file-name-display').textContent = 'No file chosen';
+            document.getElementById('file-name-display').textContent = 'Upload image here';
           }
         }
       </script>
@@ -105,7 +119,7 @@ app.post('/summarize', upload.single('file'), async (req, res) => {
       <head>
         <meta charset="UTF-8">
         <meta name="viewport" content="width=device-width, initial-scale=1.0">
-        <title>TL;DR AI - Results</title>
+        <title>TL;DR - Results</title>
         <link rel="stylesheet" href="/styles.css">
       </head>
       <body>
