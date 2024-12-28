@@ -98,12 +98,19 @@ app.post('/summarize', upload.single('file'), async (req, res) => {
       extractedText += `\n${ocrResponse.data.text}`;
     }
 
+    // OpenAI API request with structured response
     const response = await openai.chat.completions.create({
       model: "gpt-4",
       messages: [
         {
           role: 'system',
-          content: `You are a snarky TL;DR bot. Take the following text and summarize it in 20 words or less. Then, give it a DGAF rating out of 10 with a short, Gen Z-style explanation. Keep it funny but accurate.`,
+          content: `You are a snarky TL;DR bot. Take the following text and return two parts:
+          1. A summary in 20 words or less.
+          2. A DGAF rating out of 10, with a short Gen Z-style explanation.
+          
+          Format your response like this:
+          Summary: <summary>
+          DGAF Rating: <rating>`,
         },
         {
           role: 'user',
@@ -112,25 +119,31 @@ app.post('/summarize', upload.single('file'), async (req, res) => {
       ],
     });
 
+    // Extract summary and DGAF rating from the response
     const aiResponse = response.choices[0].message.content;
+    const [summary, dgafRating] = aiResponse.split('DGAF Rating:').map((part) => part.trim());
+
+    // Send the updated response to the frontend
     res.send(`
       <!DOCTYPE html>
       <html lang="en">
       <head>
         <meta charset="UTF-8">
         <meta name="viewport" content="width=device-width, initial-scale=1.0">
-        <title>TL;DR - Results</title>
+        <title>TL;DR AI - Results</title>
         <link rel="stylesheet" href="/styles.css">
       </head>
       <body>
         <div class="results">
           <h1>TL;DR Results</h1>
           <p><strong>TL;DR Original:</strong></p>
-          <p>${extractedText}</p>
-          <p><strong>TL;DR Response:</strong></p>
-          <p>${aiResponse}</p>
+          <p>${extractedText}</p><br>
+          <p><strong>Summary:</strong></p>
+          <p>${summary.replace('Summary:', '').trim()}</p><br>
+          <p><strong>DGAF Rating:</strong></p>
+          <p>${dgafRating}</p>
           <div class="share-container">
-            <button class="share-icon" onclick="window.open('https://twitter.com/intent/tweet?text=${encodeURIComponent(aiResponse)}', '_blank')">
+            <button class="share-icon" onclick="window.open('https://twitter.com/intent/tweet?text=${encodeURIComponent(summary)}', '_blank')">
               <img src="../img/x-logo.svg" alt="X Icon"> Share on X
             </button>
             <button class="share-icon" onclick="window.open('https://www.instagram.com/', '_blank')">
