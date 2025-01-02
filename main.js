@@ -167,19 +167,29 @@ app.post('/summarize', upload.single('file'), async (req, res) => {
               // Instagram sharing logic
               document.getElementById("share-instagram-btn").addEventListener("click", () => {
                 html2canvas(document.querySelector(".results")).then((canvas) => {
+                  // Convert canvas to Blob
                   canvas.toBlob((blob) => {
-                    const downloadLink = document.createElement("a");
-                    downloadLink.href = URL.createObjectURL(blob);
-                    downloadLink.download = "results.png";
-                    downloadLink.click();
-    
-                    // Open Instagram app
+                    if (!blob) {
+                      alert("Failed to generate the image. Please try again.");
+                      return;
+                    }
+
+                    // Create a temporary <a> element to trigger the download
+                    const link = document.createElement("a");
+                    link.href = URL.createObjectURL(blob); // Create a blob URL
+                    link.download = "results.png"; // Set the file name
+                    document.body.appendChild(link); // Append the link to the DOM temporarily
+                    link.click(); // Trigger the download
+                    document.body.removeChild(link); // Remove the link after the download
+
+                    // Attempt to open the Instagram app
                     setTimeout(() => {
                       window.location.href = "instagram://library";
                     }, 500);
-                  });
+                  }, "image/png"); // Specify the Blob type (PNG format)
                 });
               });
+
     
               // X sharing logic
               document.getElementById("share-x-btn").addEventListener("click", () => {
