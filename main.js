@@ -156,55 +156,81 @@ app.post('/summarize', upload.single('file'), async (req, res) => {
           </div>
         </div>
         <script>
-          // Enable share buttons after AI processing
-          document.addEventListener("DOMContentLoaded", () => {
-            const summaryText = document.getElementById("summary-text").textContent.trim();
-            if (summaryText) {
-              // Enable buttons
-              document.getElementById("share-x-btn").disabled = false;
-              document.getElementById("share-instagram-btn").disabled = false;
-    
-              // Instagram sharing logic
-              document.getElementById("share-instagram-btn").addEventListener("click", () => {
-                html2canvas(document.querySelector(".results")).then((canvas) => {
-                  // Convert canvas to Blob
-                  canvas.toBlob((blob) => {
-                    if (!blob) {
-                      alert("Failed to generate the image. Please try again.");
-                      return;
-                    }
+        // Disable the share buttons initially
+        document.getElementById("share-instagram-btn").disabled = true;
+        document.getElementById("share-x-btn").disabled = true;
 
-                    // Create a temporary <a> element to trigger the download
-                    const link = document.createElement("a");
-                    link.href = URL.createObjectURL(blob); // Create a blob URL
-                    link.download = "results.png"; // Set the file name
-                    document.body.appendChild(link); // Append the link to the DOM temporarily
-                    link.click(); // Trigger the download
-                    document.body.removeChild(link); // Remove the link after the download
+        // Placeholder for tweetText
+        let tweetText = "Processing summary... Please wait."; // Default placeholder
 
-                    // Attempt to open the Instagram app
-                    setTimeout(() => {
-                      window.location.href = "instagram://library";
-                    }, 500);
-                  }, "image/png"); // Specify the Blob type (PNG format)
+        // Function to enable share buttons after AI processing
+        function enableShareButtons() {
+          document.getElementById("share-instagram-btn").disabled = false;
+          document.getElementById("share-x-btn").disabled = false;
+        }
+
+        // Simulate AI processing completion and set the tweetText
+        setTimeout(() => {
+          // Replace this block with actual AI processing completion logic
+          const summaryElement = document.querySelector(".results #summary-text");
+          tweetText = summaryElement
+            ? summaryElement.textContent.trim()
+            : "Check out my TL;DR summary!"; // Fallback if summary text is missing
+
+          enableShareButtons(); // Enable the buttons after processing
+        }, 5000); // Simulate 5 seconds for AI processing
+
+        // Instagram sharing logic
+        document.getElementById("share-instagram-btn").addEventListener("click", () => {
+          html2canvas(document.querySelector(".results")).then((canvas) => {
+            canvas.toBlob((blob) => {
+              const formData = new FormData();
+              formData.append("file", blob, "results.png");
+
+              // Save the image to the backend
+              fetch("/save-result", {
+                method: "POST",
+                body: formData,
+              })
+                .then((response) => response.json())
+                .then(() => {
+                  alert("Your image has been saved! You can manually share it to Instagram.");
+                  window.location.href = "instagram://library"; // Open Instagram app
+                })
+                .catch((error) => {
+                  console.error("Failed to save the result image:", error);
+                  alert("Failed to save the image. Please try again.");
                 });
-              });
-
-    
-              // X sharing logic
-              document.getElementById("share-x-btn").addEventListener("click", () => {
-                html2canvas(document.querySelector(".results")).then((canvas) => {
-                  canvas.toBlob((blob) => {
-                    const imageUrl = URL.createObjectURL(blob);
-                    const tweetText = encodeURIComponent(summaryText);
-                    const twitterUrl = \`https://twitter.com/intent/tweet?text=\${tweetText}&url=\${imageUrl}\`;
-                    window.open(twitterUrl, "_blank");
-                  });
-                });
-              });
-            }
+            });
           });
-        </script>
+        });
+
+        // X sharing logic
+        document.getElementById("share-x-btn").addEventListener("click", () => {
+          html2canvas(document.querySelector(".results")).then((canvas) => {
+            canvas.toBlob((blob) => {
+              const formData = new FormData();
+              formData.append("file", blob, "results.png");
+
+              // Save the image to the backend
+              fetch("/save-result", {
+                method: "POST",
+                body: formData,
+              })
+                .then((response) => response.json())
+                .then((data) => {
+                  const publicUrl = data.url; // Public URL of the saved image
+                  const twitterUrl = 'https://twitter.com/intent/tweet?text=' + encodeURIComponent(tweetText) + '&url=' + encodeURIComponent(publicUrl);
+                  window.open(twitterUrl, "_blank"); // Open Twitter share dialog
+                })
+                .catch((error) => {
+                  console.error("Failed to save the result image:", error);
+                  alert("Failed to save the image. Please try again.");
+                });
+            });
+          });
+        });
+      </script>
       </body>
       </html>
     `);
