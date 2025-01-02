@@ -132,6 +132,7 @@ app.post('/summarize', upload.single('file'), async (req, res) => {
         <meta name="viewport" content="width=device-width, initial-scale=1.0">
         <title>TL;DR AI - Results</title>
         <link rel="stylesheet" href="/styles.css">
+        <script src="https://cdnjs.cloudflare.com/ajax/libs/html2canvas/1.4.1/html2canvas.min.js"></script>
       </head>
       <body>
         <div class="results">
@@ -139,14 +140,14 @@ app.post('/summarize', upload.single('file'), async (req, res) => {
           <p><strong>TL;DR Original:</strong></p>
           <p>${extractedText}</p><br>
           <p><strong>Summary:</strong></p>
-          <p>${summary.replace('Summary:', '').trim()}</p><br>
+          <p id="summary-text">${summary.replace('Summary:', '').trim()}</p><br>
           <p><strong>DGAF Rating:</strong></p>
           <p>${dgafRating}</p>
           <div class="share-container">
-            <button class="share-icon" onclick="window.open('https://twitter.com/intent/tweet?text=${encodeURIComponent(summary)}', '_blank')">
+            <button id="share-x-btn" class="share-icon" disabled>
               <img src="../img/x-logo.svg" alt="X Icon"> Share on X
             </button>
-            <button class="share-icon" onclick="window.open('https://www.instagram.com/', '_blank')">
+            <button id="share-instagram-btn" class="share-icon" disabled>
               <img src="../img/instagram-logo.svg" alt="Instagram Icon"> Share on Instagram
             </button>
           </div>
@@ -154,9 +155,50 @@ app.post('/summarize', upload.single('file'), async (req, res) => {
             <button class="back-button" onclick="window.history.back()">Go Back</button>
           </div>
         </div>
+        <script>
+          // Enable share buttons after AI processing
+          document.addEventListener("DOMContentLoaded", () => {
+            const summaryText = document.getElementById("summary-text").textContent.trim();
+            if (summaryText) {
+              // Enable buttons
+              document.getElementById("share-x-btn").disabled = false;
+              document.getElementById("share-instagram-btn").disabled = false;
+    
+              // Instagram sharing logic
+              document.getElementById("share-instagram-btn").addEventListener("click", () => {
+                html2canvas(document.querySelector(".results")).then((canvas) => {
+                  canvas.toBlob((blob) => {
+                    const downloadLink = document.createElement("a");
+                    downloadLink.href = URL.createObjectURL(blob);
+                    downloadLink.download = "results.png";
+                    downloadLink.click();
+    
+                    // Open Instagram app
+                    setTimeout(() => {
+                      window.location.href = "instagram://library";
+                    }, 500);
+                  });
+                });
+              });
+    
+              // X sharing logic
+              document.getElementById("share-x-btn").addEventListener("click", () => {
+                html2canvas(document.querySelector(".results")).then((canvas) => {
+                  canvas.toBlob((blob) => {
+                    const imageUrl = URL.createObjectURL(blob);
+                    const tweetText = encodeURIComponent(summaryText);
+                    const twitterUrl = \`https://twitter.com/intent/tweet?text=\${tweetText}&url=\${imageUrl}\`;
+                    window.open(twitterUrl, "_blank");
+                  });
+                });
+              });
+            }
+          });
+        </script>
       </body>
       </html>
     `);
+    
   } catch (error) {
     console.error(error);
     res.status(500).send('Something went wrong! Please try again.');
